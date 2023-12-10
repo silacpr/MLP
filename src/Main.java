@@ -1,3 +1,4 @@
+import java.lang.invoke.TypeDescriptor;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -24,25 +25,23 @@ public class Main {
     };
 
     public static void main(String [] args) {
+        TransferFunction transferFunction = new TransferTangenteHyperbolique();
         System.out.println("Calcul sur la table XOR : ");
-        Main.calcul(tableXOR);
+        Main.calcul(tableXOR, transferFunction);
+
         System.out.println("\nCalcul sur la table ET : ");
-        Main.calcul(tableET);
+        Main.calcul(tableET, transferFunction);
+
         System.out.println("\nCalcul sur la table OU : ");
-        Main.calcul(tableOU);
+        Main.calcul(tableOU, transferFunction);
     }
 
-    public static void calcul(double[][] table){
-        TransferSigmoide transferSigmoide = new TransferSigmoide();
-        TransferTangenteHyperbolique transferTangenteHyperbolique = new TransferTangenteHyperbolique();
+    public static void calcul(double[][] table, TransferFunction transferFunction){
 
-        // Attention : le nombre de neurones de le 1ère couche ne doit pas dépasser le nombre de valeur dans input donc
-        //              ici nos input sont les lignes des tables - la dernière valeur à chaque fois
-        // Attention 2 : le nombre de neurones dans la dernière couche indique le nombre d'output que l'on veut.
-        MLP mlp = new MLP(new int[]{2,1},0.03,transferSigmoide);
+        MLP mlp = initialiserMLPEnFonctionDeLaTransferFunction(transferFunction);
 
         double[] resultats = new double[table.length];
-        int nombre_apprentissage = 100;
+        int nombre_apprentissage = 1000;
         for (int j = 0; j < nombre_apprentissage; j++) {
             //System.out.println("\nItération numéro : "+j);
             for (int i = 0; i < table.length; i++) {
@@ -52,39 +51,52 @@ public class Main {
             }
         }
 
-        if (Arrays.deepEquals(table, tableXOR)){
-            boolean[] res = new boolean[resultats.length];
-            for (int i = 0; i < resultats.length; i++) {
-                if (resultats[i] < 1) {
-                    resultats[i] = 1;
-                }else{
-                    resultats[i] = -1;
-                }
-            }
-            //System.out.println(Arrays.toString(resultats));
+        boolean[] res = new boolean[resultats.length];
 
+        // teste du MPL sur la table
+        double[] sortie = new double[table.length];
+        for (int i = 0; i < table.length; i++) {
+            double[] input = Arrays.copyOf(table[i],2);
+            double[] prediction = mlp.execute(Arrays.copyOf(table[i],2));
+            System.out.println(Arrays.toString(prediction));
 
-            for (int i = 0; i < resultats.length; i++) {
-                res[i] = table[i][table[i].length-1] == resultats[i];
-            }
-            System.out.println(Arrays.toString(res));
-        }else{
-            // teste du MPL sur la table
-            for (int i = 0; i < table.length; i++) {
-                double[] input = Arrays.copyOf(table[i],2);
-                double[] prediction = mlp.execute(Arrays.copyOf(table[i],2));
-                //System.out.println(Arrays.toString(prediction));
+            // Appliquer une fonction de seuil pour obtenir des valeurs binaires
 
-                // Appliquer une fonction de seuil pour obtenir des valeurs binaires
-                for (int j = 0; j < prediction.length; j++) {
-                    prediction[j] = (prediction[j] > 0.1) ? 1.0 : 0.0;
-                }
+            sortie[i] = testSortie(transferFunction,table,sortie[i],prediction);
 
-                System.out.println("Entrée : " + Arrays.toString(input) + ", Prédiction : " + Arrays.toString(prediction));
-            }
+            System.out.println("Entrée : " + Arrays.toString(input) + ", Prédiction : " + sortie[i]);
         }
 
+        for (int i = 0; i < sortie.length; i++) {
+            res[i] = table[i][table[i].length-1] == sortie[i];
+        }
+        System.out.println(Arrays.toString(res));
+    }
 
+    public static MLP initialiserMLPEnFonctionDeLaTransferFunction(TransferFunction transferFunction){
+        MLP mlp = null;
+        if (transferFunction.getClass() == TransferSigmoide.class) {
+            // Attention : le nombre de neurones de le 1ère couche ne doit pas dépasser le nombre de valeur dans input donc
+            //              ici nos input sont les lignes des tables - la dernière valeur à chaque fois
+            // Attention 2 : le nombre de neurones dans la dernière couche indique le nombre d'output que l'on veut.
+            mlp = new MLP(new int[]{2,1},0.01,transferFunction);
+        }else if ( transferFunction.getClass() == TransferTangenteHyperbolique.class) {
+            mlp = new MLP(new int[]{2,2,1},0.01,transferFunction);
+        }
+        return mlp;
+    }
+
+    public static double testSortie(TransferFunction transferFunction, double[][] table, double sortie, double[] prediction){
+        if (transferFunction.getClass() == TransferSigmoide.class) {
+            if (table == tableXOR) {
+                sortie = (prediction[0] > 0.01) ? 1.0 : -1.0;
+            } else {
+                sortie = (prediction[0] > 0.1) ? 1.0 : -1.0;
+            }
+        }else if ( transferFunction.getClass() == TransferTangenteHyperbolique.class) {
+                sortie = (prediction[0] > 0) ? 1.0 : -1.0;
+        }
+        return sortie;
     }
 
 //    public static double signeSomme(double[] perceptron, double[] exemples){
