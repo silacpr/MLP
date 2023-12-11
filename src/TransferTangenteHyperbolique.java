@@ -15,6 +15,6 @@ public class TransferTangenteHyperbolique implements TransferFunction{
      */
     @Override
     public double evaluateDer(double value) {
-        return 1-Math.pow(evaluate(value),2);
+        return 1-Math.pow(value,2);
     }
 }
