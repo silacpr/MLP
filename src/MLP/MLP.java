@@ -1,4 +1,4 @@
-import java.util.Arrays;
+package MLP;
 
 public class MLP  {
     protected double	        fLearningRate = 0.6;

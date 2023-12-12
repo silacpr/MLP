@@ -1,7 +1,8 @@
-import java.lang.invoke.TypeDescriptor;
+package MLP;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Random;
 
 public class Main {
 
@@ -25,6 +26,39 @@ public class Main {
             {1,1,-1}
     };
 
+
+    static final double[][] tableMEL = init_table_MEL();
+
+
+    static int cpt = 0;
+
+    public static double[][] init_table_MEL() {
+        double table[][] = new double[4][3];
+
+        Random random = new Random();
+
+        for (int i = 0; i < 4; i++) {
+            int randomTable = random.nextInt(3);
+
+            switch (randomTable) {
+                case 0:
+                    table[i] = Arrays.copyOf(tableXOR[i], tableXOR[i].length);
+                    break;
+                case 1:
+                    table[i] = Arrays.copyOf(tableET[i], tableET[i].length);
+                    break;
+                case 2:
+                    table[i] = Arrays.copyOf(tableOU[i], tableOU[i].length);
+                    break;
+            }
+
+        }
+
+        return table;
+
+    }
+
+
     public static void main(String [] args) {
         TransferFunction transferFunction = new TransferSigmoide();
         System.out.println("Calcul sur la table XOR : ");
@@ -35,6 +69,12 @@ public class Main {
 
         System.out.println("\nCalcul sur la table OU : ");
         Main.calcul(tableOU, transferFunction);
+
+
+        System.out.println("\n\n Test sur tableSPE : \n");
+        Main.calcul(tableMEL, transferFunction);
+
+
     }
 
     public static void calcul(double[][] table, TransferFunction transferFunction){
@@ -80,6 +120,7 @@ public class Main {
             }
             //System.out.println(Arrays.toString(res));
 
+
             max_apprentissage--;
             if (max_apprentissage<=0){
                 break;
@@ -91,6 +132,8 @@ public class Main {
             System.out.println(Arrays.toString(prediction));
         }
 
+        CourbeInfluenceParametre.tracerCourbe(new int[]{2,3,3,1},resultats,"file"+cpt+".png");
+        cpt++;
         System.out.println(Arrays.toString(resultats));
         System.out.println("Nombre d'itération : "+(1000000-max_apprentissage));
         System.out.println(test);
@@ -102,6 +145,14 @@ public class Main {
             // Attention : le nombre de neurones de le 1ère couche ne doit pas dépasser le nombre de valeur dans input donc
             //              ici nos input sont les lignes des tables - la dernière valeur à chaque fois
             // Attention 2 : le nombre de neurones dans la dernière couche indique le nombre d'output que l'on veut.
+
+        if (table == tableXOR) {
+            mlp = new MLP(new int[]{2,3,3,1}, 1, transferFunction);
+        }
+        else {
+            mlp = new MLP(new int[]{2,1}, 0.3, transferFunction);
+        }
+            /*
             if (table == tableET) {
                 mlp = new MLP(new int[]{2,1}, 0.3, transferFunction);
             } else if (table == tableOU) {
@@ -109,9 +160,10 @@ public class Main {
             } else if (table == tableXOR) {
                 mlp = new MLP(new int[]{2,3,3,1}, 1, transferFunction);
             }
-
+             */
 
         }else if ( transferFunction.getClass() == TransferTangenteHyperbolique.class) {
+            /*
             if (table == tableET) {
                 mlp = new MLP(new int[]{2,1}, 0.01, transferFunction);
             } else if (table == tableOU) {
@@ -120,6 +172,11 @@ public class Main {
                 mlp = new MLP(new int[]{2,3,3,1}, 1, transferFunction);
                 //mlp = new MLP(new int[]{2,2,1}, 0.1, transferFunction);
             }
+             */
+            if (table == tableXOR) {
+                mlp = new MLP(new int[]{2,3,3,1}, 1, transferFunction);
+            }
+            else mlp = new MLP(new int[]{2,1}, 0.01, transferFunction);
         }
         return mlp;
     }
@@ -137,40 +194,4 @@ public class Main {
         return sortie;
     }
 
-//    public static double signeSomme(double[] perceptron, double[] exemples){
-//        double somme = 0;
-//        for (int i = 0 ; i < perceptron.length - 1 ; i++) {
-//            somme += perceptron[i] * exemples[i];
-//        }
-//        somme -= perceptron[perceptron.length - 1];
-//
-//        if (somme < 0) {
-//            somme = -1;
-//        } else {
-//            somme = 1;
-//        }
-//        return somme;
-//    }
-//
-//    public static double[] appPerceptron(double[] perceptron, double [] exemple,
-//                                         double sortie, double pas) {
-//	/*
-//	   mise a jour des poids du perceptron
-//	   suivant la regle d'apprentissage
-//	   du perceptron
-//	*/
-//        double signe = signeSomme(perceptron,exemple);
-//        //affichePoids(perceptron);
-//        if (signe != exemple[exemple.length-1]) {
-//
-//            /* poids */
-//            for (int i = 0; i < perceptron.length - 1; i++) {
-//                perceptron[i] = perceptron[i] + pas * exemple[i] * (sortie - signe);
-//            }
-//            /* seuil */
-//            perceptron[perceptron.length - 1] = perceptron[perceptron.length - 1] + pas * -1 * (sortie - signe);
-//
-//        }
-//        return perceptron;
-//    }
 }

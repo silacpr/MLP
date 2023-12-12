@@ -1,20 +1,23 @@
-public class TransferTangenteHyperbolique implements TransferFunction{
+package MLP;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+
+interface TransferFunction  {
     /**
      * Function de transfert
      * @param value entrée
      * @return sortie de la fonction sur l'entrée
      */
-    @Override
-    public double evaluate(double value) {
-        return Math.tanh(value);
-    }
+    public double evaluate(double value);
+
     /**
      * Dérivée de la fonction de tranfert
      * @param value entrée
      * @return sortie de la fonction dérivée sur l'entrée
      */
-    @Override
-    public double evaluateDer(double value) {
-        return 1-Math.pow(value,2);
-    }
+    public double evaluateDer(double value);
 }

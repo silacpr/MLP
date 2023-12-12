@@ -1,3 +1,5 @@
+package MLP;
+
 public class TransferSigmoide implements TransferFunction{
     /**
      * Function de transfert
