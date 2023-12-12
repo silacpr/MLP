@@ -22,8 +22,8 @@ public class Main {
         File ft10k_etiquette= new File("./MNIST/t10k-labels.idx1-ubyte");
 
 
-        Donnees dtest = enregistrerImages(ftest_img, ftest_etiquette,100);
-        Donnees d2 = enregistrerImages(ft10k_img, ft10k_etiquette,100);
+        Donnees dtest = enregistrerImages(ftest_img, ftest_etiquette,1000);
+        Donnees d2 = enregistrerImages(ft10k_img, ft10k_etiquette,1000);
 
         AlgoClassification algoClassification = new PlusProche(d2);
         Statistiques statistiques = new Statistiques(algoClassification,dtest);
@@ -33,6 +33,9 @@ public class Main {
         //784 entrées : 28 x 28 pixels
         //10 sorties : 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
         //MLP.Main.calcul( ,new TransferSigmoide());
+
+
+
     }
     
     public static Donnees enregistrerImages(File file, File etiquette,int diviseur) throws IOException {

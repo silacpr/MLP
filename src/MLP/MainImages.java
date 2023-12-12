@@ -21,7 +21,6 @@ public class MainImages {
 
     static double[][] exemples;
 
-
     static int cpt = 0;
 
 
@@ -32,41 +31,18 @@ public class MainImages {
 
         try {
             enregistrerImages(ftest_img, ftest_etiquette,100);
-        }catch (IOException ignored){
-            ignored.printStackTrace();
+        }catch (IOException ioException){
+            ioException.printStackTrace();
         }
 
 
+        TransferFunction transferFunction = new TransferTangenteHyperbolique();
+
+        System.out.println("Calcoul sur les images :");
+        calcul(exemples, transferFunction);
 
 
-        /*
-        donnees.tabImagettes.stream().forEach((img)->{
-            double test[] = new double[785];
-            int pixels[][] = img.getPixels();
-            int ahhh = 0;
-            for (int i = 0; i < pixels.length; i++){
-                for (int j =0; j<pixels[i].length; j++){
-                    test[ahhh] = pixels[i][j];
-                    ahhh++;
-                }
-            }
-            test[ahhh]=img.getEtiquette();
-            exemples[index] = test;
-            index++;
-        });*/
 
-
-        TransferFunction transferFunction = new TransferSigmoide();
-        /*
-        System.out.println("Calcul sur la table XOR : ");
-        Main.calcul(tableXOR, transferFunction);
-
-        System.out.println("\nCalcul sur la table ET : ");
-        Main.calcul(tableET, transferFunction);
-
-        System.out.println("\nCalcul sur la table OU : ");
-        Main.calcul(tableOU, transferFunction);
-         */
 
         //System.out.println(Arrays.deepToString(exemples));
 
@@ -79,7 +55,8 @@ public class MainImages {
         int max_apprentissage = 1000000;
 
         ArrayList<Boolean> test = new ArrayList<>();
-        test.add(false);test.add(false);test.add(false);test.add(false);
+
+        for(int i = 0; i<table.length; i++) test.add(false);
 
         //boolean[] res = new boolean[resultats.length];
 
@@ -106,8 +83,6 @@ public class MainImages {
                 //test.clear();
                 test.set(i,table[i][table[i].length-1] == sortie[i]);
             }
-            //System.out.println(Arrays.toString(res));
-
 
             max_apprentissage--;
             if (max_apprentissage<=0){
