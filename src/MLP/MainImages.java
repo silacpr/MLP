@@ -30,7 +30,7 @@ public class MainImages {
 
 
         try {
-            enregistrerImages(ftest_img, ftest_etiquette,100);
+            enregistrerImages(ftest_img, ftest_etiquette,6000);
         }catch (IOException ioException){
             ioException.printStackTrace();
         }
@@ -109,6 +109,9 @@ public class MainImages {
             //              ici nos input sont les lignes des tables - la dernière valeur à chaque fois
             // Attention 2 : le nombre de neurones dans la dernière couche indique le nombre d'output que l'on veut.
 
+            mlp = new MLP(new int[]{784,10,10,1}, 15, transferFunction);
+
+            /*
             if (table != null) {
                 mlp = new MLP(new int[]{2,3,3,1}, 1, transferFunction);
             }
@@ -116,11 +119,18 @@ public class MainImages {
                 mlp = new MLP(new int[]{2,1}, 0.3, transferFunction);
             }
 
+             */
+
         }else if ( transferFunction.getClass() == TransferTangenteHyperbolique.class) {
+
+            mlp = new MLP(new int[]{784,10,10,1}, 15, transferFunction);
+            /*
             if (table != null) {
                 mlp = new MLP(new int[]{2,3,3,1}, 1, transferFunction);
             }
             else mlp = new MLP(new int[]{2,1}, 0.01, transferFunction);
+
+             */
         }
         return mlp;
     }
