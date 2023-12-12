@@ -63,7 +63,7 @@ public class MainImages {
         //boucle d'apprentissage
         while (test.contains(false)){
             for (int i = 0; i < table.length; i++) {
-                double[] input = Arrays.copyOf(table[i],2);
+                double[] input = Arrays.copyOf(table[i],table[i].length-1);
                 double[] out = new double[]{table[i][table[i].length-1]};
                 resultats[i] = mlp.backPropagate(input,out);
             }
@@ -71,8 +71,8 @@ public class MainImages {
             // teste du MPL sur la table
             double[] sortie = new double[table.length];
             for (int i = 0; i < table.length; i++) {
-                double[] input = Arrays.copyOf(table[i],2);
-                double[] prediction = mlp.execute(Arrays.copyOf(table[i],2));
+                double[] input = Arrays.copyOf(table[i],table[i].length-1);
+                double[] prediction = mlp.execute(Arrays.copyOf(table[i],table[i].length-1));
 
                 // Appliquer une fonction de seuil pour obtenir des valeurs binaires
                 sortie[i] = testSortie(transferFunction,table,sortie[i],prediction);
@@ -91,7 +91,7 @@ public class MainImages {
         }
 
         for (int i = 0; i < table.length; i++) {
-            double[] prediction = mlp.execute(Arrays.copyOf(table[i],2));
+            double[] prediction = mlp.execute(Arrays.copyOf(table[i],table[i].length-1));
             System.out.println(Arrays.toString(prediction));
         }
 
@@ -180,8 +180,8 @@ public class MainImages {
             }
            exemples[i][index] = listE.get(i) / max;
         }
-        System.out.println(Arrays.deepToString(exemples));
-        System.out.println("le MAAAAX : " +max);
+        //System.out.println(Arrays.deepToString(exemples));
+        //System.out.println("le MAAAAX : " +max);
 
 
     }
