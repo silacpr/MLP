@@ -20,7 +20,6 @@ public class Etiquettes {
         System.out.println(nbElem);
 
         for (int i = 0; i < nbElem; i++) {
-            System.out.println(i);
             this.listChiffre.add(data.readUnsignedByte());
         }
     }
