@@ -1,8 +1,6 @@
 package MLP;
 
-import KNN.Donnees;
-import KNN.Etiquettes;
-import KNN.Imagette;
+import KNN.*;
 import KNN.Main;
 
 import java.io.*;
@@ -30,13 +28,13 @@ public class MainImages {
 
 
         try {
-            enregistrerImages(ftest_img, ftest_etiquette,6000);
+            enregistrerImages(ftest_img, ftest_etiquette,1);
         }catch (IOException ioException){
             ioException.printStackTrace();
         }
 
 
-        TransferFunction transferFunction = new TransferTangenteHyperbolique();
+        TransferFunction transferFunction = new TransferSigmoide();
 
         System.out.println("Calcoul sur les images :");
         calcul(exemples, transferFunction);
@@ -52,7 +50,7 @@ public class MainImages {
             //              ici nos input sont les lignes des tables - la dernière valeur à chaque fois
             // Attention 2 : le nombre de neurones dans la dernière couche indique le nombre d'output que l'on veut.
 
-            mlp = new MLP(new int[]{784,10}, 2, transferFunction);
+            mlp = new MLP(new int[]{784,10}, 0.1, transferFunction);
 
             /*
             if (table != null) {
@@ -66,7 +64,7 @@ public class MainImages {
 
         }else if ( transferFunction.getClass() == TransferTangenteHyperbolique.class) {
 
-            mlp = new MLP(new int[]{784,10,10,10}, 2, transferFunction);
+            mlp = new MLP(new int[]{784,10}, 0.01, transferFunction);
             /*
             if (table != null) {
                 mlp = new MLP(new int[]{2,3,3,1}, 1, transferFunction);
@@ -82,7 +80,7 @@ public class MainImages {
         MLP mlp = initialiserMLPEnFonctionDeLaTransferFunction(transferFunction, table);
 
         double[] resultats = new double[table.length];
-        int max_apprentissage = 1000000;
+        int max_apprentissage = 100;
 
         ArrayList<Boolean> test = new ArrayList<>();
 
@@ -112,18 +110,22 @@ public class MainImages {
             // teste du MPL sur la table
             double[] sortie = new double[table.length];
             for (int i = 0; i < table.length; i++) {
-                double[] input = Arrays.copyOf(table[i],table[i].length-1);
+                //double[] input = Arrays.copyOf(table[i],table[i].length-1);
                 double[] prediction = mlp.execute(Arrays.copyOf(table[i],table[i].length-1));
-
-                // Appliquer une fonction de seuil pour obtenir des valeurs binaires
-                //System.out.println(Arrays.toString(prediction));
-                sortie[i] = testSortie(transferFunction,table,sortie[i],prediction);
-
+                sortie[i] = testSortie(prediction);
             }
 
             for (int i = 0; i < sortie.length; i++) {
-                boolean res = table[i][table[i].length-1] == sortie[i];
-                //test.clear();
+                int chiffre = 11;
+                for (int j = table[i].length-11; j < table[i].length ; j++) {
+                    if (table[i][j]==1){
+                        chiffre = j - table[i].length+10;
+                        break;
+                    }
+                }
+                //System.out.println(chiffre + " == "+sortie[i]);
+                boolean res = chiffre == sortie[i];
+
                 test.set(i,res);
             }
 
@@ -133,54 +135,37 @@ public class MainImages {
             }
         }
 
+        /*
         for (int i = 0; i < table.length; i++) {
             double[] prediction = mlp.execute(Arrays.copyOf(table[i],table[i].length-1));
             System.out.println("Prédiction = "+Arrays.toString(prediction));
-        }
+        }*/
 
         //CourbeInfluenceParametre.tracerCourbe(new int[]{2,3,3,1},resultats,"file"+cpt+".png");
         //cpt++;
-        System.out.println("Erreur = "+Arrays.toString(resultats));
-        System.out.println("Nombre d'itération : "+(1000000-max_apprentissage));
+        //System.out.println("Erreur = "+Arrays.toString(resultats));
+        System.out.println("Nombre d'itération : "+(1000-max_apprentissage));
         System.out.println(test);
+        System.out.println(statistiques(test)*100+ " % de réussite !");
     }
 
-    public static double testSortie(TransferFunction transferFunction, double[][] table, double sortie, double[] prediction){
-        if (transferFunction.getClass() == TransferSigmoide.class) {
-           sortie = (prediction[0] > 0.1) ? 1.0 : -1.0;
-        }else if ( transferFunction.getClass() == TransferTangenteHyperbolique.class) {
-            if (prediction[0] > -1 && prediction[0] <= -0.8) {
-                sortie = 0;
-            } else if (prediction[0] > -0.8 && prediction[0] <= -0.6) {
-                sortie = (double) 1 /256;
-            } else if (prediction[0] > -0.6 && prediction[0] <= -0.4) {
-                sortie = (double) 2 /256;
-            } else if (prediction[0] > -0.4 && prediction[0] <= -0.2) {
-                sortie = (double) 3 /256;
-            } else if (prediction[0] > -0.2 && prediction[0] <= 0) {
-                sortie = (double) 4 /256;
-            } else if (prediction[0] > 0 && prediction[0] <= 0.2) {
-                sortie = (double) 5 /256;
-            } else if (prediction[0] > 0.2 && prediction[0] <= 0.4) {
-                sortie = (double) 6 /256;
-            } else if (prediction[0] > 0.4 && prediction[0] <= 0.6) {
-                sortie = (double) 7 /256;
-            } else if (prediction[0] > 0.6 && prediction[0] <= 0.8) {
-                sortie = (double) 8 /256;
-            } else if (prediction[0] > 0.8 && prediction[0] <= 1) {
-                sortie = (double) 9 /256;
-            } else if (prediction[0] > 1) {
-                sortie = (double) 10 /256;
+    public static double testSortie(double[] prediction){
+        int chiffrePredit = 0;
+        double max = 0;
+        for (int i = 0; i < prediction.length; i++) {
+            if (prediction[i]>max){
+                max = prediction[i];
+                chiffrePredit = i;
             }
         }
-        return sortie;
+        //System.out.println(chiffrePredit);
+        return chiffrePredit;
     }
 
     public static void enregistrerImages(File file, File etiquette,int diviseur) throws IOException {
         File f = file;
         InputStream inputStream = new FileInputStream(f);
         DataInputStream data = new DataInputStream(inputStream);
-        System.out.println("test");
 
         int type = data.readUnsignedByte() << 24 | data.readUnsignedByte() << 16 | data.readUnsignedByte() << 8 | data.readUnsignedByte();
         int nbImages = data.readUnsignedByte() << 24 | data.readUnsignedByte() << 16 | data.readUnsignedByte() << 8 | data.readUnsignedByte();
@@ -238,8 +223,20 @@ public class MainImages {
             ex[k] = listDes.get(k-ex.length+10);
         }
 
-        System.out.println(listDes.toString());
+        //System.out.println(listDes.toString());
         return ex;
+    }
+
+    public static double statistiques(ArrayList<Boolean> res){
+        int cpt = 0;
+        int cptTotal = 0;
+        for (boolean trouve : res) {
+            if (trouve){
+                cpt++;
+            }
+            cptTotal++;
+        }
+        return (double) cpt /cptTotal;
     }
 
 
