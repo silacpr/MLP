@@ -66,7 +66,7 @@ public class MainImages {
 
         }else if ( transferFunction.getClass() == TransferTangenteHyperbolique.class) {
 
-            mlp = new MLP(new int[]{784,10,10}, 2, transferFunction);
+            mlp = new MLP(new int[]{784,10,10,10}, 2, transferFunction);
             /*
             if (table != null) {
                 mlp = new MLP(new int[]{2,3,3,1}, 1, transferFunction);
@@ -93,8 +93,19 @@ public class MainImages {
         //boucle d'apprentissage
         while (test.contains(false)){
             for (int i = 0; i < table.length; i++) {
-                double[] input = Arrays.copyOf(table[i],table[i].length-1);
-                double[] out = new double[]{table[i][table[i].length-1]};
+                double[] input = Arrays.copyOf(table[i],table[i].length-10);
+                double[] out = new double[]{
+                        table[i][table[i].length-10],
+                        table[i][table[i].length-9],
+                        table[i][table[i].length-8],
+                        table[i][table[i].length-7],
+                        table[i][table[i].length-6],
+                        table[i][table[i].length-5],
+                        table[i][table[i].length-4],
+                        table[i][table[i].length-3],
+                        table[i][table[i].length-2],
+                        table[i][table[i].length-1],
+                };
                 resultats[i] = mlp.backPropagate(input,out);
             }
 
