@@ -46,7 +46,7 @@ public class PlusProche extends AlgoClassification {
         int minimum = Arrays.stream(array).min().getAsInt();
         System.out.println(Arrays.toString(array));
         System.out.println("el min : " + minimum);
-        System.out.println("en esperant que ça crash pas = " + Arrays.stream(array).min());
+        //System.out.println("en esperant que ça crash pas = " + Arrays.stream(array).min());
         for (int i = 0; i < array.length; i++) {
             if (array[i] == minimum) {
                 System.out.println("index : "+i);
