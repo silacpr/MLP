@@ -8,24 +8,23 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class CourbeInfluenceParametre {
 
-    public static void tracerCourbe(int[] layers, double[] tauxErreur,String file) {
-        // Exemple d'utilisation pour illustrer l'influence des paramètres
-        //int[] layers = {1, 2, 3, 4, 5};  // Valeurs du paramètre X (par exemple, nombre de neurones)
-        //double[] tauxErreur = {10, 8, 6, 4, 2};  // Valeurs du taux d'erreur correspondant à chaque paramètre X
-
+    public static void tracerCourbe(String titre, String labelX, String labelY, int iterationLength, ArrayList<Double> data, String file) {
+        //int iterationLength = nombre de fois que l'on a lancé la fonction d'apprentissage
+        //double[] data = taux d'erreur moyen pour chaque itération
         // Tracer la courbe
-        plotCourbe("Influence du nombre de neurones", "Nombre de neurones", "Taux d'erreur", layers, tauxErreur, file);
+        plotCourbe(titre, labelX, labelY, iterationLength, data, file);
     }
 
-    public static void plotCourbe(String titre, String labelX, String labelY, int[] xData, double[] yData, String outputFile) {
+    public static void plotCourbe(String titre, String labelX, String labelY, int xData, ArrayList<Double> yData, String outputFile) {
         // Créer une série de données
         XYSeries series = new XYSeries("Courbe");
 
-        for (int i = 0; i < xData.length; i++) {
-            series.add(xData[i], yData[i]);
+        for (int i = 0; i < xData; i++) {
+            series.add(i, yData.get(i));
         }
 
         // Créer une collection de séries de données
@@ -41,8 +40,9 @@ public class CourbeInfluenceParametre {
         );
 
         // Sauvegarder le graphique dans un fichier
+
         try {
-            ChartUtils.saveChartAsPNG(new File(outputFile), chart, 800, 600);
+            ChartUtils.saveChartAsPNG(new File("./courbe/"+outputFile), chart, 800, 600);
             System.out.println("Graphique sauvegardé avec succès dans : " + outputFile);
         } catch (IOException e) {
             e.printStackTrace();

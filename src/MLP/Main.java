@@ -132,7 +132,7 @@ public class Main {
             System.out.println(Arrays.toString(prediction));
         }
 
-        CourbeInfluenceParametre.tracerCourbe(new int[]{2,3,3,1},resultats,"file"+cpt+".png");
+        //CourbeInfluenceParametre.tracerCourbe("Influence du nombre de neuron","Itération","Taux d'erreur",resultats.length,resultats,"file"+cpt+".png");
         cpt++;
         System.out.println(Arrays.toString(resultats));
         System.out.println("Nombre d'itération : "+(1000000-max_apprentissage));

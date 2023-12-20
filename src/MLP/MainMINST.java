@@ -26,7 +26,7 @@ public class MainMINST {
 
     public static void main(String [] args) {
         try {
-            int diviseur =1;
+            int diviseur =10;
             exemplesTest = enregistrerImages(ftest_img, ftest_etiquette,diviseur);
             exemplesReels = enregistrerImages(ft10k_img, ft10k_etiquette, diviseur);
         }catch (IOException ioException){
@@ -34,32 +34,31 @@ public class MainMINST {
         }
 
         TransferFunction transferFunction = new TransferTangenteHyperbolique();
+        MLP mlp = initialiserMLPEnFonctionDeLaTransferFunction(transferFunction);
+        ArrayList<Double> tauxErreurs = new ArrayList<>();
 
-        System.out.println("Kalcoul sur les images :");
-        calcul(exemplesTest,exemplesReels, transferFunction);
+        System.out.println("Calcul sur les images :");
+        calcul(exemplesTest,exemplesReels,mlp,tauxErreurs);
+        calcul(exemplesTest,exemplesReels,mlp,tauxErreurs);
     }
 
-    public static MLP initialiserMLPEnFonctionDeLaTransferFunction(TransferFunction transferFunction, double[][] table){
+    public static MLP initialiserMLPEnFonctionDeLaTransferFunction(TransferFunction transferFunction){
         MLP mlp = null;
         if (transferFunction.getClass() == TransferSigmoide.class) {
-            mlp = new MLP(new int[]{784,10}, 0.1, transferFunction);
+            mlp = new MLP(new int[]{784,10,10,10}, 0.1, transferFunction);
         }else if ( transferFunction.getClass() == TransferTangenteHyperbolique.class) {
-            mlp = new MLP(new int[]{784,10}, 0.001, transferFunction);
+            mlp = new MLP(new int[]{784,10,10,10}, 0.1, transferFunction);
         }
         return mlp;
     }
 
-    public static void calcul(double[][] tableTest,double[][] tableReel, TransferFunction transferFunction){
-        MLP mlp = initialiserMLPEnFonctionDeLaTransferFunction(transferFunction, tableTest);
-
-        double[] resultats = new double[tableTest.length];
+    public static void calcul(double[][] tableTest,double[][] tableReel, MLP mlp, ArrayList<Double> resultats){
+        //double[] resultats = new double[tableTest.length];
         int max_apprentissage = 100;
 
         ArrayList<Boolean> test = new ArrayList<>();
 
         for(int i = 0; i<tableTest.length; i++) test.add(false);
-
-        //boolean[] res = new boolean[resultats.length];
 
         //boucle d'apprentissage
         while (test.contains(false)){
@@ -79,7 +78,7 @@ public class MainMINST {
                         tableTest[i][tableTest[i].length-2],
                         tableTest[i][tableTest[i].length-1],
                 };
-                resultats[i] = mlp.backPropagate(input,out);
+                resultats.add(mlp.backPropagate(input,out));
             }
 
             // teste du MPL sur les données réelles
@@ -92,11 +91,17 @@ public class MainMINST {
         }
 
         test = testMLP(tableReel,mlp,test);
+//Influence de 10 neurones par couches (10) supplémentaires
+        CourbeInfluenceParametre.tracerCourbe(
+                "Influence de 10 neurones par couches (10) supplémentaires (taux apprentissage de 0.1)"
+                ,"Itérations",
+                "Taux d'erreur",
+                resultats.size(),resultats,
+                "fonctionHyperboliqueInfluence50N50C.png");
 
-        //CourbeInfluenceParametre.tracerCourbe(new int[]{2,3,3,1},resultats,"file"+cpt+".png");
-        //System.out.println("Erreur = "+Arrays.toString(resultats));
+        System.out.println("Résultat backpropagate = "+resultats.size());
         System.out.println("Nombre d'itération : "+(100-max_apprentissage));
-        System.out.println(test);
+        //System.out.println(test);
         System.out.println(statistiques(test)*100+ " % de réussite !");
     }
 
@@ -194,6 +199,10 @@ public class MainMINST {
             }
         }
         return (double) cpt /res.size();
+    }
+
+    public static void getDonnees(){
+
     }
 
 
