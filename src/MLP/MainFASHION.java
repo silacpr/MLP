@@ -27,7 +27,7 @@ public class MainFASHION {
             ioException.printStackTrace();
         }
 
-        TransferFunction transferFunction = new TransferSigmoide();
+        TransferFunction transferFunction = new TransferTangenteHyperbolique();
         ArrayList<Double> tauxErreurs = new ArrayList<>();
         MLP mlp = initialiserMLPEnFonctionDeLaTransferFunction(transferFunction);
 
@@ -41,7 +41,7 @@ public class MainFASHION {
         if (transferFunction.getClass() == TransferSigmoide.class) {
             mlp = new MLP(new int[]{784,10}, 0.1, transferFunction);
         }else if ( transferFunction.getClass() == TransferTangenteHyperbolique.class) {
-            mlp = new MLP(new int[]{784,10}, 0.01, transferFunction);
+            mlp = new MLP(new int[]{784,50,50,10}, 0.01, transferFunction);
         }
         return mlp;
     }
@@ -89,11 +89,11 @@ public class MainFASHION {
         test = testMLP(tableReel,mlp,test);
 
         CourbeInfluenceParametre.tracerCourbe(
-                "Fonction Sigmoïde"
+                "Influence 50 neurones par couches (2) supplémentaires"
                 ,"Itérations",
                 "Taux d'erreur",
                 resultats.size(),resultats,
-                "fonctionHyperboliqueInfluence50N50C_fashion.png");
+                "fonctionHyperbolique50N2C_fashion.png");
         //System.out.println("Erreur = "+Arrays.toString(resultats));
         System.out.println("Nombre d'itération : "+(100-max_apprentissage));
         System.out.println(test);
