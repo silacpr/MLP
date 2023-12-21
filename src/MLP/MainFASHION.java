@@ -20,20 +20,23 @@ public class MainFASHION {
 
     public static void main(String [] args) {
          try {
-             int diviseur = 1;
+             int diviseur = 100;
             exemplesTest = enregistrerImages(ftest_img, ftest_etiquette,diviseur);
             exemplesReels = enregistrerImages(ft10k_img, ft10k_etiquette, diviseur);
         }catch (IOException ioException){
             ioException.printStackTrace();
         }
 
-        TransferFunction transferFunction = new TransferTangenteHyperbolique();
+        TransferFunction transferFunction = new TransferSigmoide();
+        ArrayList<Double> tauxErreurs = new ArrayList<>();
+        MLP mlp = initialiserMLPEnFonctionDeLaTransferFunction(transferFunction);
 
-        System.out.println("Kalcoul sur les images :");
-        calcul(exemplesTest,exemplesReels, transferFunction);
+        System.out.println("Calcul sur les images :");
+        calcul(exemplesTest,exemplesReels, mlp, tauxErreurs);
+        calcul(exemplesTest,exemplesReels, mlp, tauxErreurs);
     }
 
-    public static MLP initialiserMLPEnFonctionDeLaTransferFunction(TransferFunction transferFunction, double[][] table){
+    public static MLP initialiserMLPEnFonctionDeLaTransferFunction(TransferFunction transferFunction){
         MLP mlp = null;
         if (transferFunction.getClass() == TransferSigmoide.class) {
             mlp = new MLP(new int[]{784,10}, 0.1, transferFunction);
@@ -43,10 +46,8 @@ public class MainFASHION {
         return mlp;
     }
 
-    public static void calcul(double[][] tableTest,double[][] tableReel, TransferFunction transferFunction){
-        MLP mlp = initialiserMLPEnFonctionDeLaTransferFunction(transferFunction, tableTest);
+    public static void calcul(double[][] tableTest,double[][] tableReel, MLP mlp, ArrayList<Double> resultats){
 
-        double[] resultats = new double[tableTest.length];
         int max_apprentissage = 100;
 
         ArrayList<Boolean> test = new ArrayList<>();
@@ -73,7 +74,7 @@ public class MainFASHION {
                         tableTest[i][tableTest[i].length-2],
                         tableTest[i][tableTest[i].length-1],
                 };
-                resultats[i] = mlp.backPropagate(input,out);
+                resultats.add(mlp.backPropagate(input,out));
             }
 
             // teste du MPL sur les données réelles
@@ -87,7 +88,12 @@ public class MainFASHION {
 
         test = testMLP(tableReel,mlp,test);
 
-        //CourbeInfluenceParametre.tracerCourbe(new int[]{2,3,3,1},resultats,"file"+cpt+".png");
+        CourbeInfluenceParametre.tracerCourbe(
+                "Fonction Sigmoïde"
+                ,"Itérations",
+                "Taux d'erreur",
+                resultats.size(),resultats,
+                "fonctionHyperboliqueInfluence50N50C_fashion.png");
         //System.out.println("Erreur = "+Arrays.toString(resultats));
         System.out.println("Nombre d'itération : "+(100-max_apprentissage));
         System.out.println(test);
